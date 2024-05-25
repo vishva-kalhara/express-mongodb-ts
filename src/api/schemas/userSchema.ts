@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
+import validator from 'validator';
 import { IUserDocument } from '../types/userTypes';
+import bcrypt from 'bcrypt';
 
-const userSchema = new mongoose.Schema<IUserDocument>({
+const User = new mongoose.Schema<IUserDocument>({
     name: {
         type: String,
         required: [true, 'Please provide the name'],
@@ -12,6 +14,8 @@ const userSchema = new mongoose.Schema<IUserDocument>({
         trim: true,
         unique: true,
         required: [true, 'Please provide the email'],
+        lowercase: true,
+        validate: [validator.isEmail, 'Please provide a valid email'],
     },
     password: {
         type: String,
@@ -20,6 +24,34 @@ const userSchema = new mongoose.Schema<IUserDocument>({
         trim: true,
         select: false,
     },
+    confirmPassword: {
+        type: String,
+        required: [true, 'Please provide the confirm password'],
+        trim: true,
+        validate: function () {
+            return this.password === this.confirmPassword;
+        },
+        message: 'Password and confirm password doen not match',
+    },
+    role: {
+        type: String,
+        enum: ['Admin', 'User'],
+        default: 'User',
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
 });
 
-export default mongoose.model<IUserDocument>('User', userSchema);
+User.pre('save', async function (this, next) {
+    if (!this.isModified('password')) return next();
+
+    this.password = await bcrypt.hash(this.password, 10);
+
+    this.confirmPassword = undefined;
+
+    next();
+});
+
+export default mongoose.model<IUserDocument>('User', User);
