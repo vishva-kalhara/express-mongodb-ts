@@ -5,6 +5,7 @@ class AppError extends Error {
     status: string;
     isOperational: boolean;
     errorBody?: mongooseValidationError[];
+    code?: number;
 
     constructor(
         message: string | mongooseValidationError[],

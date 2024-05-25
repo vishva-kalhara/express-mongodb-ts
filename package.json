@@ -1,5 +1,5 @@
 {
-    "name": "slot_sage",
+    "name": "open-backend-1.2",
     "version": "1.0.0",
     "description": "",
     "keywords": [],
@@ -14,13 +14,15 @@
         }
     ],
     "scripts": {
-        "test": "jest",
+        "start": "cd ./src && cd ./api && npx cross-env NODE_ENV=development nodemon index.ts",
+        "start:prod": "cd ./src && cd ./api && npx cross-env NODE_ENV=production nodemon index.ts",
+        "test": "jest --verbose --detectOpenHandles",
         "test:integrations": "jest --testPathPattern=src/__tests__/integrations",
-        "build": "tsc --build",
-        "start": "cd ./src && cd ./api && npx nodemon index.ts"
+        "build": "tsc --build"
     },
     "dependencies": {
         "bcrypt": "^5.0.1",
+        "cross-env": "^7.0.3",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
         "express-mongo-sanitize": "^2.2.0",

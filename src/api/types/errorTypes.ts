@@ -16,3 +16,9 @@ export interface mongooseValidationError {
     field: string;
     message: string;
 }
+
+export interface duplicateDocumentError extends AppError {
+    errorResponse: {
+        errmsg: String;
+    };
+}

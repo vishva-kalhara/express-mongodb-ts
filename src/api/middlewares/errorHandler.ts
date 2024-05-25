@@ -1,6 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import AppError from '../../utils/appError';
-import { errorType, mongooseValidationError } from '../types/errorTypes';
+import {
+    duplicateDocumentError,
+    errorType,
+    mongooseValidationError,
+} from '../types/errorTypes';
+
+const handleDuplicateDocuments = (err: duplicateDocumentError) => {
+    const matchResult = err.errorResponse.errmsg.match(
+        /(["'])(?:(?=(\\?))\2.)*?\1/
+    );
+    if (matchResult) {
+        const value = matchResult[0];
+        return new AppError(`There is a record associated to ${value}`, 400);
+    } else return new AppError(`Unhandled Error Occured`, 500);
+};
 
 const handleValidationErrors = (err: errorType) => {
     const errors: mongooseValidationError[] = Object.values(err.errors).map(
@@ -8,8 +22,7 @@ const handleValidationErrors = (err: errorType) => {
             return { field: el.path, message: el.message };
         }
     );
-    console.log(errors);
-    return errors;
+    return new AppError(errors, 400);
 };
 
 const sendErrorDev = (err: AppError, res: Response) => {
@@ -48,13 +61,14 @@ export default (
     let error = err;
     error.statusCode = err.statusCode || 500;
     error.status = err.status || 'error';
-    if ((process.env.NODE_ENV as string) === 'production') {
-        if (error.name == 'ValidationError') {
-            error.statusCode = 400;
-            error.status = 'fail';
-            error.isOperational = true;
-            error.errorBody = handleValidationErrors(error as errorType);
-        }
+    if (
+        (process.env.NODE_ENV as string) === 'production' ||
+        (process.env.NODE_ENV as string) === 'test'
+    ) {
+        if (error.name == 'ValidationError')
+            error = handleValidationErrors(error as errorType);
+        if (error.code === 11000)
+            error = handleDuplicateDocuments(error as duplicateDocumentError);
         return sendErrorProd(error, res);
     }
     return sendErrorDev(error, res);
