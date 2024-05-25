@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import {
   IGetAllUsersResponse,
   IGetUserResponse,
-  IUser,
+  IUserInput,
 } from '../types/userTypes';
 // import { dummyUsers } from '../../__data__/dummy-users';
 import catchAsync from '../../utils/catchAsync';
@@ -31,7 +31,7 @@ export const getUser = catchAsync(
   ) => {
     const user = (await dummyUsers.find((el) => {
       return el.id == req.params.id;
-    })) as IUser | undefined;
+    })) as IUserInput | undefined;
     if (!user) {
       return next(
         new AppError(`There is no user associated with this id.`, 404)
