@@ -10,6 +10,13 @@ import mongoose from 'mongoose';
 
 describe('/api/v1/auth', () => {
     let app: Express;
+    const userPayLoad = {
+        name: 'testName',
+        email: 'test123@gmail.com',
+        password: '123456789',
+        confirmPassword: '123456789',
+        role: 'Admin',
+    };
 
     beforeAll(async () => {
         await connectDB();
@@ -22,13 +29,6 @@ describe('/api/v1/auth', () => {
     });
 
     describe('[POST] /signUp', () => {
-        const userPayLoad = {
-            name: 'Wishva',
-            email: 'wishvakalhara123@gmail.com',
-            password: '123456789',
-            confirmPassword: '123456789',
-            role: 'Admin',
-        };
         it('Should return the user document with 201 status code', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/signUp')
@@ -60,14 +60,50 @@ describe('/api/v1/auth', () => {
     });
 
     describe('[POST] /signIn', () => {
-        it('Should return 400 when not passing the both email and password', () => {});
+        it('Should return 400 when not passing the both email and password', async () => {
+            const response = await request(app)
+                .post('/api/v1/auth/signIn')
+                .send({});
+            expect(response.status).toBe(400);
+            expect(response.body.message).toBe(
+                'Please provide email and password'
+            );
+        });
 
-        it('Should return 401 when there is not any account associated to the email', () => {});
+        it('Should return 401 when there is not any account associated to the email', async () => {
+            const response = await request(app)
+                .post('/api/v1/auth/signIn')
+                .send({
+                    email: 'test123@gma456il.com',
+                    password: userPayLoad.password,
+                });
+            expect(response.status).toBe(401);
+            expect(response.body.message).toBe(
+                'There is no active user associated to this email'
+            );
+        });
 
-        it('Should return 401 when the password is incorrect', () => {});
+        it('Should return 401 when the password is incorrect', async () => {
+            const response = await request(app)
+                .post('/api/v1/auth/signIn')
+                .send({
+                    email: userPayLoad.email,
+                    password: 'userPayLoad.password',
+                });
+            expect(response.status).toBe(401);
+            expect(response.body.message).toBe('Password is incorrect.');
+        });
 
-        it('Should return 200 when inserting the correct credentials', () => {
-            // Expect
+        it('Should return 200 when inserting the correct credentials', async () => {
+            const response = await request(app)
+                .post('/api/v1/auth/signIn')
+                .send({
+                    email: userPayLoad.email,
+                    password: userPayLoad.password,
+                });
+            expect(response.status).toBe(200);
+            expect(response.body.status).toBe('success');
+            expect(response.body.jwt).toBeTruthy();
         });
     });
 });

@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { signUp } from '../handlers/authHandler';
+import { signIn, signUp } from '../handlers/authHandler';
 
 const authRouter = Router();
 
 authRouter.route('/signUp').post(signUp);
+authRouter.route('/signIn').post(signIn);
 
 export default authRouter;

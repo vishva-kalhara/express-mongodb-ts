@@ -56,9 +56,17 @@ export const signIn = catchAsync(
             '+password'
         );
         if (!user)
-            return next(new AppError('Please provide email and password', 400));
+            return next(
+                new AppError(
+                    'There is no active user associated to this email',
+                    401
+                )
+            );
 
-        const isMatched = isPasswordMatch(password as string, user?.password);
+        const isMatched = await isPasswordMatch(
+            password as string,
+            user.password
+        );
         if (!isMatched)
             return next(new AppError('Password is incorrect.', 401));
 
@@ -66,9 +74,7 @@ export const signIn = catchAsync(
 
         res.status(200).json({
             status: 'success',
-            data: {
-                user,
-            },
+            jwt: 'demo',
         });
     }
 );
