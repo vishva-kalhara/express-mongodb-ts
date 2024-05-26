@@ -5,13 +5,12 @@ import { IUserDocument, IUserInput } from '../types/userTypes';
 import { ISignInRequest } from '../types/authTypes';
 import AppError from '../../utils/appError';
 import bcrypt from 'bcrypt';
-// import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
-// const signJWT = (id: String) => {
-//     jwt.sign({ id }, process.env.JWT_SECRET, {
-//         expiresIn: process.env.JWT_EXPIRES_IN,
-//     });
-// };
+export const signJWT = (id: String) =>
+    jwt.sign({ id }, process.env.JWT_SECRET as string, {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+    });
 
 export const isPasswordMatch = async (
     plainPassword: string,
@@ -74,7 +73,7 @@ export const signIn = catchAsync(
 
         res.status(200).json({
             status: 'success',
-            jwt: 'demo',
+            jwt: signJWT(user._id),
         });
     }
 );

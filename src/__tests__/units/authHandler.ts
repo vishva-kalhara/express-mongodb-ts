@@ -1,4 +1,7 @@
-import { isPasswordMatch } from '../../api/handlers/authHandler';
+import { isPasswordMatch, signJWT } from '../../api/handlers/authHandler';
+import jwt from 'jsonwebtoken';
+
+jest.mock('jsonwebtoken');
 
 describe('Supportive functions', () => {
     describe('isPasswordMatch()', () => {
@@ -18,6 +21,30 @@ describe('Supportive functions', () => {
                 hashedPassword
             );
             expect(isMacthed).toBeFalsy();
+        });
+    });
+
+    describe('signJWT()', () => {
+        const mockId = '123456';
+        const jwtSecret = process.env.JWT_SECRET as string;
+        const jwtExpiresIn = process.env.JWT_EXPIRES_IN as string;
+
+        let mockedToken: string;
+        beforeAll(() => {
+            mockedToken = jwt.sign({ id: mockId }, jwtSecret, {
+                expiresIn: jwtExpiresIn,
+            });
+        });
+
+        it('should generate the correct token', async () => {
+            (jwt.sign as jest.Mock).mockReturnValue(mockedToken);
+
+            const token = signJWT(mockId);
+
+            expect(jwt.sign).toHaveBeenCalledWith({ id: mockId }, jwtSecret, {
+                expiresIn: jwtExpiresIn,
+            });
+            expect(token).toBe(mockedToken);
         });
     });
 });
