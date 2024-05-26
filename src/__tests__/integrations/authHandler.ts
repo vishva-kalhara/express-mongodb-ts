@@ -5,6 +5,7 @@ import { createApp } from '../../api/app';
 import { Express } from 'express';
 import connectDB from '../../api/db';
 import User from '../../api/schemas/userSchema';
+import mongoose from 'mongoose';
 // import mongoose from 'mongoose';
 
 describe('/api/v1/auth', () => {
@@ -17,6 +18,7 @@ describe('/api/v1/auth', () => {
 
     afterAll(async () => {
         await User.deleteMany();
+        await mongoose.connection.close();
     });
 
     describe('[POST] /signUp', () => {
@@ -34,6 +36,9 @@ describe('/api/v1/auth', () => {
             const { name, email, password, confirmPassword, role } =
                 response.body.data;
             expect(response.status).toBe(201);
+            expect(response.headers['content-type']).toEqual(
+                expect.stringContaining('json')
+            );
             expect(name).toBe(userPayLoad.name);
             expect(email).toBe(userPayLoad.email);
             expect(password).not.toBe(userPayLoad.password);
@@ -45,9 +50,24 @@ describe('/api/v1/auth', () => {
                 .post('/api/v1/auth/signUp')
                 .send(userPayLoad);
             expect(response.status).toBe(400);
+            expect(response.headers['content-type']).toEqual(
+                expect.stringContaining('json')
+            );
             expect(response.body.message).toContain(
                 'There is a record associated'
             );
+        });
+    });
+
+    describe('[POST] /signIn', () => {
+        it('Should return 400 when not passing the both email and password', () => {});
+
+        it('Should return 401 when there is not any account associated to the email', () => {});
+
+        it('Should return 401 when the password is incorrect', () => {});
+
+        it('Should return 200 when inserting the correct credentials', () => {
+            // Expect
         });
     });
 });

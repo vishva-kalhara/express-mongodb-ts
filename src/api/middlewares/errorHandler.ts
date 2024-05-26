@@ -1,56 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import AppError from '../../utils/appError';
+import { duplicateDocumentError, errorType } from '../types/errorTypes';
 import {
-    duplicateDocumentError,
-    errorType,
-    mongooseValidationError,
-} from '../types/errorTypes';
-
-const handleDuplicateDocuments = (err: duplicateDocumentError) => {
-    const matchResult = err.errorResponse.errmsg.match(
-        /(["'])(?:(?=(\\?))\2.)*?\1/
-    );
-    if (matchResult) {
-        const value = matchResult[0];
-        return new AppError(`There is a record associated to ${value}`, 400);
-    } else return new AppError(`Unhandled Error Occured`, 500);
-};
-
-const handleValidationErrors = (err: errorType) => {
-    const errors: mongooseValidationError[] = Object.values(err.errors).map(
-        (el) => {
-            return { field: el.path, message: el.message };
-        }
-    );
-    return new AppError(errors, 400);
-};
-
-const sendErrorDev = (err: AppError, res: Response) => {
-    res.status(err.statusCode).json({
-        status: err.status,
-        error: { ...err, name: err.name },
-        message: err.message,
-        stack: err.stack,
-    });
-};
-
-const sendErrorProd = (err: AppError, res: Response) => {
-    // console.log(err);
-    if (err.isOperational) {
-        res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message,
-            data: err.errorBody || undefined,
-        });
-    } else {
-        console.error('Error 💥💥', err);
-        res.status(500).json({
-            status: 'error',
-            message:
-                err.message || 'Something went wrong. Please try again later.',
-        });
-    }
-};
+    handleDuplicateDocuments,
+    handleValidationErrors,
+    sendErrorDev,
+    sendErrorProd,
+} from '../handlers/errorHandler';
 
 export default (
     err: AppError,

@@ -16,8 +16,9 @@
     "scripts": {
         "start": "cd ./src && cd ./api && npx cross-env NODE_ENV=development nodemon index.ts",
         "start:prod": "cd ./src && cd ./api && npx cross-env NODE_ENV=production nodemon index.ts",
-        "test": "jest --verbose --detectOpenHandles",
-        "test:integrations": "jest --testPathPattern=src/__tests__/integrations",
+        "test": "jest --verbose --runInBand --detectOpenHandles",
+        "test:units": "jest --testPathPattern=src/__tests__/units --verbose --runInBand --detectOpenHandles",
+        "test:integrations": "jest --testPathPattern=src/__tests__/integrations --verbose --runInBand --detectOpenHandles",
         "build": "tsc --build"
     },
     "dependencies": {
@@ -42,6 +43,7 @@
         "@types/bcrypt": "^5.0.2",
         "@types/express": "^4.17.21",
         "@types/jest": "^29.5.12",
+        "@types/jsonwebtoken": "^9.0.6",
         "@types/mongoose": "^5.11.97",
         "@types/node": "^20.12.12",
         "@types/supertest": "^6.0.2",
