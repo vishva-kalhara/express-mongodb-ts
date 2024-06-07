@@ -45,6 +45,7 @@ describe('/api/v1/auth', () => {
             expect(confirmPassword).toBeFalsy();
             expect(role).toBe('User');
         });
+
         it('Should return the error with 400 status code when trying to create two accounts with same email', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/signUp')
