@@ -42,6 +42,9 @@ const User = new mongoose.Schema<IUserDocument>({
         type: Boolean,
         default: true,
     },
+    passwordResetAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
 });
 
 User.pre('save', async function (this, next) {
@@ -53,5 +56,24 @@ User.pre('save', async function (this, next) {
 
     next();
 });
+
+// User.pre('save', async function (next) {
+//     if (!this.isModified('password') || this.isNew) return next();
+
+//     this.passwordChangedAt = Date.now() - 1000; // Don't persist in the DB
+//     next();
+//   });
+
+User.methods.isPasswordChanged = function (JWTTimeStamp: number) {
+    if (this.passwordResetAt) {
+        const changedTimeStamp = parseInt(
+            (this.passwordResetAt.getTime() / 1000).toString(),
+            10
+        );
+
+        return JWTTimeStamp < changedTimeStamp;
+    }
+    return false;
+};
 
 export default mongoose.model<IUserDocument>('User', User);

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import catchAsync from '../../utils/catchAsync';
+import catchAsync from '../utils/catchAsync';
 import User from '../schemas/userSchema';
 import { IUserDocument, IUserInput } from '../types/userTypes';
 import { ISignInRequest } from '../types/authTypes';
-import AppError from '../../utils/appError';
+import AppError from '../utils/appError';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -50,7 +50,6 @@ export const signIn = catchAsync(
         const { email, password } = req.body;
         if (!email || !password)
             return next(new AppError('Please provide email and password', 400));
-
         const user: IUserDocument | null = await User.findOne({ email }).select(
             '+password'
         );
@@ -77,3 +76,7 @@ export const signIn = catchAsync(
         });
     }
 );
+
+// export const updateMyPassword = catchAsync(
+
+// );

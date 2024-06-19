@@ -9,7 +9,7 @@ export interface IUserInput {
     isActive: boolean;
 }
 
-export interface IUserDocument extends IUserInput, mongoose.Schema {
+export interface IUserDocument extends IUserInput, mongoose.Document {
     _id: string;
     createdAt?: Date;
     passwordResetAt?: Date;

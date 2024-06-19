@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
-import catchAsync from '../../utils/catchAsync';
-import AppError from '../../utils/appError';
+import { Response, NextFunction } from 'express';
+import catchAsync from '../utils/catchAsync';
+import AppError from '../utils/appError';
 import { promisify } from 'util';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import userSchema from '../schemas/userSchema';
 
-import '../../../express';
 import { IUserDocument } from '../types/userTypes';
+import { IRequestWithUser } from '../types/authTypes';
 
 // Define the expected payload type
 interface MyJwtPayload extends JwtPayload {
@@ -19,7 +19,7 @@ const verifyAsync = promisify(jwt.verify) as (
 ) => Promise<JwtPayload>;
 
 export default catchAsync(
-    async (req: Request, _res: Response, next: NextFunction) => {
+    async (req: IRequestWithUser, _res: Response, next: NextFunction) => {
         let token;
         if (
             req.headers.authorization &&

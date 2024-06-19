@@ -1,4 +1,4 @@
-import { mongooseValidationError } from '../api/types/errorTypes';
+import { mongooseValidationError } from '../types/errorTypes';
 
 class AppError extends Error {
     statusCode: number;

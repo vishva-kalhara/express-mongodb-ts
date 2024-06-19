@@ -7,11 +7,23 @@
     "license": "ISC",
     "main": "./src/api/index.ts",
     "type": "commonjs",
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true
+    },
     "contributors": [
         {
             "name": "Wishva Kalhara",
             "url": "https://github.com/vishva-kalhara"
         }
+    ],
+    "include": [
+        "src/api/**/*",
+        "src/api/types/express.d.ts"
     ],
     "scripts": {
         "start": "cd ./src && cd ./api && npx cross-env NODE_ENV=development nodemon index.ts",

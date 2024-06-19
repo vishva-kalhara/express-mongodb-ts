@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { IUserDocument } from './src/api/types/userTypes';
+import { IUserDocument } from './userTypes';
 
 declare global {
     namespace Express {

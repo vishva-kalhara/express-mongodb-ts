@@ -2,6 +2,7 @@ import express from 'express';
 import userRouter from './routes/userRoutes';
 import errorHandler from './middlewares/errorHandler';
 import authRouter from './routes/authRoutes';
+// import './types/express';/
 
 export function createApp() {
     const app = express();
