@@ -1,10 +1,5 @@
-// import '../types/express';
 import { NextFunction, Request, Response } from 'express';
-import {
-    IGetAllUsersResponse,
-    IGetUserResponse,
-    // IUserDocument,
-} from '../types/userTypes';
+import { IGetAllUsersResponse, IGetUserResponse } from '../types/userTypes';
 import catchAsync from '../utils/catchAsync';
 import { dummyUsers } from '../../__data__/dummy-users';
 import { filterObj } from '../utils/filterObj';

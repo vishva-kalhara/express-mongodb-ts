@@ -5,6 +5,8 @@ import protect from '../middlewares/protect';
 const userRouter = Router();
 
 userRouter.route('/').get(getAllUsers);
-userRouter.route('/:id').get(getUser).patch(protect, updateMe);
+userRouter.route('/:id').get(getUser);
+
+userRouter.route('/updateMe').patch(protect, updateMe);
 
 export default userRouter;
