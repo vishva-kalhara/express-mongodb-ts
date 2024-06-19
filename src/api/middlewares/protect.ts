@@ -47,7 +47,7 @@ export default catchAsync(
         if (!userExist)
             return next(
                 new AppError(
-                    'The User associated wit this token is deleted.',
+                    'The User associated with this token is deleted.',
                     401
                 )
             );

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import catchAsync from '../utils/catchAsync';
 import User from '../schemas/userSchema';
 import { IUserDocument, IUserInput } from '../types/userTypes';
-import { ISignInRequest } from '../types/authTypes';
+import { IRequestUpdateMyPassword, ISignInRequest } from '../types/authTypes';
 import AppError from '../utils/appError';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -17,6 +17,36 @@ export const isPasswordMatch = async (
     hashedPassword: string
 ) => {
     return await bcrypt.compare(plainPassword, hashedPassword);
+};
+
+export const createSendToken = (
+    user: IUserDocument,
+    statusCode: number,
+    res: Response
+) => {
+    const token = signJWT(user._id);
+
+    const jwtExpiresIn = Number(process.env.JWT_COOKEI_EXPIRES_IN as string);
+
+    const cookieOptions = {
+        expires: new Date(Date.now() + jwtExpiresIn * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        secure: false,
+    };
+
+    res.cookie('jwt', token, cookieOptions);
+
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+    user.password = '';
+
+    res.status(statusCode).json({
+        status: 'success',
+        jwt: token,
+        data: {
+            user,
+        },
+    });
 };
 
 export const signUp = catchAsync(
@@ -34,10 +64,7 @@ export const signUp = catchAsync(
             confirmPassword,
         });
 
-        res.status(201).json({
-            status: 'success',
-            data: newUser,
-        });
+        createSendToken(newUser, 201, res);
     }
 );
 
@@ -70,13 +97,66 @@ export const signIn = catchAsync(
 
         user.password = '';
 
-        res.status(200).json({
-            status: 'success',
-            jwt: signJWT(user._id),
-        });
+        createSendToken(user, 200, res);
     }
 );
 
-// export const updateMyPassword = catchAsync(
+export const updateMyPassword = catchAsync(
+    async (
+        req: IRequestUpdateMyPassword,
+        res: Response,
+        next: NextFunction
+    ) => {
+        // Destruct body
+        const { currentPassword, newPassword, confirmPassword } = req.body;
 
-// );
+        if (!currentPassword)
+            return next(
+                new AppError('Please provide the current password', 400)
+            );
+        if (!newPassword)
+            return next(new AppError('Please provide the new password', 400));
+        if (!confirmPassword)
+            return next(
+                new AppError('Please provide the confirm password', 400)
+            );
+
+        // Get current user with password
+        const currentUser = await User.findById(req.user._id).select(
+            '+password'
+        );
+        if (!currentUser)
+            return next(new AppError('Please sign in to the application', 401));
+
+        // Check whether the current password match
+        const isMatched = await isPasswordMatch(
+            currentPassword,
+            currentUser!.password
+        );
+        if (!isMatched)
+            return next(new AppError('Current password does not match', 400));
+
+        // Update password
+        currentUser.password = newPassword;
+        currentUser.confirmPassword = confirmPassword;
+        await currentUser.save();
+
+        createSendToken(currentUser, 200, res);
+    }
+);
+
+export const forgetPassword = catchAsync(
+    async (
+        _req: IRequestUpdateMyPassword,
+        _res: Response,
+        _next: NextFunction
+    ) => {}
+);
+
+export const resetPassword = catchAsync(
+    async (
+        _req: IRequestUpdateMyPassword,
+        _res: Response,
+        _next: NextFunction
+    ) => {}
+);

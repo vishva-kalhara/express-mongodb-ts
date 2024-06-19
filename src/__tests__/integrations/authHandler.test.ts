@@ -34,7 +34,7 @@ describe('/api/v1/auth', () => {
                 .post('/api/v1/auth/signUp')
                 .send(userPayLoad);
             const { name, email, password, confirmPassword, role } =
-                response.body.data;
+                response.body.data.user;
             expect(response.status).toBe(201);
             expect(response.headers['content-type']).toEqual(
                 expect.stringContaining('json')
@@ -106,5 +106,11 @@ describe('/api/v1/auth', () => {
             expect(response.body.status).toBe('success');
             expect(response.body.jwt).toBeTruthy();
         });
+    });
+
+    describe('[PATCH] /updateMyPassword', async () => {
+        it('Should include currentPassword', async () => {});
+        it('Should include newPassword', async () => {});
+        it('Should include confirmPassword', async () => {});
     });
 });

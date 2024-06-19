@@ -9,3 +9,11 @@ export interface ISignInRequest {
 export interface IRequestWithUser extends Request {
     user: IUserDocument;
 }
+
+export interface IRequestUpdateMyPassword extends IRequestWithUser {
+    body: {
+        currentPassword: string;
+        newPassword: string;
+        confirmPassword: string;
+    };
+}

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import validator from 'validator';
 import { IUserDocument } from '../types/userTypes';
 import bcrypt from 'bcrypt';
+import AppError from '../utils/appError';
 
 const User = new mongoose.Schema<IUserDocument>({
     name: {
@@ -28,10 +29,6 @@ const User = new mongoose.Schema<IUserDocument>({
         type: String,
         required: [true, 'Please provide the confirm password'],
         trim: true,
-        validate: function () {
-            return this.password === this.confirmPassword;
-        },
-        message: 'Password and confirm password doen not match',
     },
     role: {
         type: String,
@@ -50,19 +47,27 @@ const User = new mongoose.Schema<IUserDocument>({
 User.pre('save', async function (this, next) {
     if (!this.isModified('password')) return next();
 
+    if (this.password != this.confirmPassword)
+        return next(
+            new AppError('Password and Confirm Password does not match.', 400)
+        );
+
+    console.log(this.password);
     this.password = await bcrypt.hash(this.password, 10);
+    console.log(this.password);
 
     this.confirmPassword = undefined;
 
     next();
 });
 
-// User.pre('save', async function (next) {
-//     if (!this.isModified('password') || this.isNew) return next();
+User.pre('save', async function (next) {
+    if (!this.isModified('password') || this.isNew) return next();
 
-//     this.passwordChangedAt = Date.now() - 1000; // Don't persist in the DB
-//     next();
-//   });
+    this.passwordResetAt = new Date(Date.now() - 1000); // Don't persist in the DB
+    console.log(this);
+    next();
+});
 
 User.methods.isPasswordChanged = function (JWTTimeStamp: number) {
     if (this.passwordResetAt) {

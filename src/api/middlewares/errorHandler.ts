@@ -25,6 +25,8 @@ export default (
             error = handleValidationErrors(error as errorType);
         if (error.code === 11000)
             error = handleDuplicateDocuments(error as duplicateDocumentError);
+
+        console.log(error);
         return sendErrorProd(error, res);
     }
     return sendErrorDev(error, res);
