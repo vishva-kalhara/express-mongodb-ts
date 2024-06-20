@@ -108,9 +108,92 @@ describe('/api/v1/auth', () => {
         });
     });
 
-    describe('[PATCH] /updateMyPassword', async () => {
-        it('Should include currentPassword', async () => {});
-        it('Should include newPassword', async () => {});
-        it('Should include confirmPassword', async () => {});
+    describe('[PATCH] /updateMyPassword', () => {
+        let currentJwt = 'Bearer ';
+        let updateMyPasswordPayload = {
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: '',
+        };
+
+        beforeAll(async () => {
+            const response = await request(app)
+                .post('/api/v1/auth/signIn')
+                .send({
+                    email: userPayLoad.email,
+                    password: userPayLoad.password,
+                });
+            currentJwt += response.body.jwt;
+        });
+
+        beforeEach(() => {
+            updateMyPasswordPayload = {
+                currentPassword: '123456789',
+                newPassword: '123123123',
+                confirmPassword: '123123123',
+            };
+        });
+
+        it('Should include currentPassword', async () => {
+            updateMyPasswordPayload.currentPassword = '';
+            const response = await request(app)
+                .patch('/api/v1/auth/updateMyPassword')
+                .set('Authorization', currentJwt)
+                .send(updateMyPasswordPayload);
+
+            expect(response.status).toBe(400);
+            expect(response.body.message).toBe(
+                'Please provide the current password'
+            );
+        });
+
+        it('Should include newPassword', async () => {
+            updateMyPasswordPayload.newPassword = '';
+            const response = await request(app)
+                .patch('/api/v1/auth/updateMyPassword')
+                .set('Authorization', currentJwt)
+                .send(updateMyPasswordPayload);
+
+            expect(response.status).toBe(400);
+            expect(response.body.message).toBe(
+                'Please provide the new password'
+            );
+        });
+
+        it('Should include confirmPassword', async () => {
+            updateMyPasswordPayload.confirmPassword = '';
+            const response = await request(app)
+                .patch('/api/v1/auth/updateMyPassword')
+                .set('Authorization', currentJwt)
+                .send(updateMyPasswordPayload);
+
+            expect(response.status).toBe(400);
+            expect(response.body.message).toBe(
+                'Please provide the confirm password'
+            );
+        });
+
+        it('Should return 400 when the current password does not match', async () => {
+            updateMyPasswordPayload.currentPassword = 'incorrect password';
+            const response = await request(app)
+                .patch('/api/v1/auth/updateMyPassword')
+                .set('Authorization', currentJwt)
+                .send(updateMyPasswordPayload);
+
+            expect(response.status).toBe(400);
+            expect(response.body.message).toBe(
+                'Current password does not match'
+            );
+        });
+
+        it('Should return 200 when the password reset is success', async () => {
+            const response = await request(app)
+                .patch('/api/v1/auth/updateMyPassword')
+                .set('Authorization', currentJwt)
+                .send(updateMyPasswordPayload);
+
+            expect(response.status).toBe(200);
+            expect(response.body.jwt).not.toBe('Bearer ' + currentJwt);
+        });
     });
 });

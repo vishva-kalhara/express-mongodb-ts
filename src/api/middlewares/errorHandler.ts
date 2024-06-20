@@ -26,7 +26,7 @@ export default (
         if (error.code === 11000)
             error = handleDuplicateDocuments(error as duplicateDocumentError);
 
-        console.log(error);
+        // console.log(error);
         return sendErrorProd(error, res);
     }
     return sendErrorDev(error, res);

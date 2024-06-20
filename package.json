@@ -32,6 +32,7 @@
         "test:units": "jest --testPathPattern=src/__tests__/units --verbose --runInBand --detectOpenHandles",
         "test:integrations": "jest --testPathPattern=src/__tests__/integrations --verbose --runInBand --detectOpenHandles",
         "test:integrations:user": "jest --testPathPattern=src/__tests__/integrations/userHandler.test.ts --verbose --runInBand --detectOpenHandles",
+        "test:integrations:auth": "jest --testPathPattern=src/__tests__/integrations/authHandler.test.ts --verbose --runInBand --detectOpenHandles",
         "build": "tsc --build"
     },
     "dependencies": {

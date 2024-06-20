@@ -29,6 +29,13 @@ const User = new mongoose.Schema<IUserDocument>({
         type: String,
         required: [true, 'Please provide the confirm password'],
         trim: true,
+        validate: {
+            // Works only when using CREATE and SAVE
+            validator: function (this: IUserDocument): boolean {
+                return this.password === this.confirmPassword;
+            },
+            message: 'Password and Confirm Password does not match.',
+        },
     },
     role: {
         type: String,
@@ -52,9 +59,7 @@ User.pre('save', async function (this, next) {
             new AppError('Password and Confirm Password does not match.', 400)
         );
 
-    console.log(this.password);
     this.password = await bcrypt.hash(this.password, 10);
-    console.log(this.password);
 
     this.confirmPassword = undefined;
 
@@ -64,8 +69,7 @@ User.pre('save', async function (this, next) {
 User.pre('save', async function (next) {
     if (!this.isModified('password') || this.isNew) return next();
 
-    this.passwordResetAt = new Date(Date.now() - 1000); // Don't persist in the DB
-    console.log(this);
+    this.passwordResetAt = new Date(Date.now() - 10000); // Don't persist in the DB
     next();
 });
 
@@ -75,7 +79,6 @@ User.methods.isPasswordChanged = function (JWTTimeStamp: number) {
             (this.passwordResetAt.getTime() / 1000).toString(),
             10
         );
-
         return JWTTimeStamp < changedTimeStamp;
     }
     return false;
