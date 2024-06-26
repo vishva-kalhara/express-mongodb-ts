@@ -48,8 +48,6 @@ export const createSendToken = (
             user,
         },
     });
-
-    new Email(user, '');
 };
 
 export const signUp = catchAsync(
@@ -67,10 +65,13 @@ export const signUp = catchAsync(
             confirmPassword,
         });
 
+        await new Email(
+            newUser,
+            'https://github.com/vishva-kalhara/express-mongodb-ts'
+        ).sendWelcome();
+
         createSendToken(newUser, 201, res);
     }
-
-    // new
 );
 
 export const signIn = catchAsync(

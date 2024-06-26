@@ -13,7 +13,7 @@ export default class Email {
         this.to = user.email;
         this.firstName = user.name.split(' ')[0];
         this.url = url;
-        this.from = `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM_EMAIL}>`;
+        this.from = `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_USER}>`;
     }
 
     newTransport() {
