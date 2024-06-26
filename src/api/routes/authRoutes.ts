@@ -16,8 +16,6 @@ authRouter.route('/signIn').post(signIn);
 authRouter.get('/forgetPassword', forgetPassword);
 authRouter.patch('/updateMyPassword/:token', resetPassword);
 
-authRouter.use(protect);
-
-authRouter.patch('/updateMyPassword', updateMyPassword);
+authRouter.patch('/updateMyPassword', protect, updateMyPassword);
 
 export default authRouter;

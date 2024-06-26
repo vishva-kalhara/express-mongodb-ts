@@ -4,6 +4,7 @@ import User from '../schemas/userSchema';
 import { IUserDocument, IUserInput } from '../types/userTypes';
 import { IRequestUpdateMyPassword, ISignInRequest } from '../types/authTypes';
 import AppError from '../utils/appError';
+import Email from '../utils/email';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -47,6 +48,8 @@ export const createSendToken = (
             user,
         },
     });
+
+    new Email(user, '');
 };
 
 export const signUp = catchAsync(
@@ -66,6 +69,8 @@ export const signUp = catchAsync(
 
         createSendToken(newUser, 201, res);
     }
+
+    // new
 );
 
 export const signIn = catchAsync(

@@ -1,4 +1,8 @@
 import express from 'express';
+import path from 'path';
+import helmet from 'helmet';
+import morgan from 'morgan'
+
 import userRouter from './routes/userRoutes';
 import errorHandler from './middlewares/errorHandler';
 import authRouter from './routes/authRoutes';
@@ -6,6 +10,18 @@ import authRouter from './routes/authRoutes';
 
 export function createApp() {
     const app = express();
+
+    // Setup view engine
+    app.set('view engine', 'pug');
+    app.set('views', path.join(__dirname, 'views'));
+
+    // HTTP Headers
+    app.use(helmet());
+
+    // Development Logging
+    if (process.env.NODE_ENV === 'development') {
+        app.use(morgan('dev'));
+    }
 
     app.use(express.json({ limit: '10kb' }));
 

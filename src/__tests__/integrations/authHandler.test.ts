@@ -134,7 +134,7 @@ describe('/api/v1/auth', () => {
             };
         });
 
-        it('Should include currentPassword', async () => {
+        it('Should return 400 when the currentPassword is not provided', async () => {
             updateMyPasswordPayload.currentPassword = '';
             const response = await request(app)
                 .patch('/api/v1/auth/updateMyPassword')
@@ -147,7 +147,7 @@ describe('/api/v1/auth', () => {
             );
         });
 
-        it('Should include newPassword', async () => {
+        it('Should return 400 when the newPassword is not provided', async () => {
             updateMyPasswordPayload.newPassword = '';
             const response = await request(app)
                 .patch('/api/v1/auth/updateMyPassword')
@@ -160,7 +160,7 @@ describe('/api/v1/auth', () => {
             );
         });
 
-        it('Should include confirmPassword', async () => {
+        it('Should return 400 when the confirmPassword is not provided', async () => {
             updateMyPasswordPayload.confirmPassword = '';
             const response = await request(app)
                 .patch('/api/v1/auth/updateMyPassword')
