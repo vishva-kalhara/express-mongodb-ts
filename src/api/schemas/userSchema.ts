@@ -1,7 +1,8 @@
+import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import validator from 'validator';
 import { IUserDocument } from '../types/userTypes';
-import bcrypt from 'bcrypt';
 import AppError from '../utils/appError';
 
 const User = new mongoose.Schema<IUserDocument>({
@@ -82,6 +83,22 @@ User.methods.isPasswordChanged = function (JWTTimeStamp: number) {
         return JWTTimeStamp < changedTimeStamp;
     }
     return false;
+};
+
+User.methods.createPasswordResetToken = function () {
+    // Generate Random token
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Hash the token
+    this.passwordResetToken = crypto
+        .createHash('sha256')
+        .update(resetToken)
+        .digest('hex');
+
+    // Update the document
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+    return resetToken;
 };
 
 export default mongoose.model<IUserDocument>('User', User);

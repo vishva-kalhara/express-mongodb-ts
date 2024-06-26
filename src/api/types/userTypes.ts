@@ -16,6 +16,7 @@ export interface IUserDocument extends IUserInput, mongoose.Document {
     passwordResetToken?: string;
     passwordResetExpires?: Date;
     isPasswordChanged: (iat: number) => Promise<boolean>;
+    createPasswordResetToken: () => string;
 }
 
 export interface IGetAllUsersResponse {

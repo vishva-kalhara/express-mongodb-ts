@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import catchAsync from '../utils/catchAsync';
 import User from '../schemas/userSchema';
 import { IUserDocument, IUserInput } from '../types/userTypes';
-import { IRequestUpdateMyPassword, ISignInRequest } from '../types/authTypes';
+import {
+    IRequestForgetPassword,
+    IRequestUpdateMyPassword,
+    ISignInRequest,
+} from '../types/authTypes';
 import AppError from '../utils/appError';
 import Email from '../utils/email';
 import bcrypt from 'bcrypt';
@@ -103,6 +107,11 @@ export const signIn = catchAsync(
 
         user.password = '';
 
+        await new Email(
+            user,
+            'https://github.com/vishva-kalhara/express-mongodb-ts'
+        ).sendWelcome();
+
         createSendToken(user, 200, res);
     }
 );
@@ -152,11 +161,23 @@ export const updateMyPassword = catchAsync(
 );
 
 export const forgetPassword = catchAsync(
-    async (
-        _req: IRequestUpdateMyPassword,
-        _res: Response,
-        _next: NextFunction
-    ) => {}
+    async (req: IRequestForgetPassword, res: Response, next: NextFunction) => {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) return next(new AppError('No user found!', 404));
+
+        const token = await user.createPasswordResetToken();
+        await user.save({
+            validateBeforeSave: false,
+        });
+
+        console.log(token);
+        await new Email(user, '').sendPasswordReset(token);
+
+        res.status(200).json({
+            staus: 'success',
+            message: 'Token sent to email!',
+        });
+    }
 );
 
 export const resetPassword = catchAsync(

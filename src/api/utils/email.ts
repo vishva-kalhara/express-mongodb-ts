@@ -27,13 +27,14 @@ export default class Email {
         });
     }
 
-    async send(template: string, subject: string) {
+    async send(template: string, subject: string, data = '') {
         const html = pug.renderFile(
             `${__dirname}/../../templates/emails/${template}.pug`,
             {
                 firstName: this.firstName,
                 url: this.url,
                 subject,
+                data,
             }
         );
 
@@ -50,5 +51,13 @@ export default class Email {
 
     async sendWelcome() {
         await this.send('welcome', 'Welcome to the Natours Family!');
+    }
+
+    async sendPasswordReset(plainToken: string) {
+        await this.send(
+            'forgetPassword',
+            'Your password reset token (valid for 10 mins)',
+            plainToken
+        );
     }
 }

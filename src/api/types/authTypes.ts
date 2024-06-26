@@ -17,3 +17,9 @@ export interface IRequestUpdateMyPassword extends IRequestWithUser {
         confirmPassword: string;
     };
 }
+
+export interface IRequestForgetPassword extends IRequestWithUser {
+    body: {
+        email: string;
+    };
+}
