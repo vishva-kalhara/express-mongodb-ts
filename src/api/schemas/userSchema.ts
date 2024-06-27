@@ -22,7 +22,7 @@ const User = new mongoose.Schema<IUserDocument>({
     password: {
         type: String,
         minlength: [8, 'Password must include 8 characters minimum.'],
-        required: [true, 'Pleas eprovide the password'],
+        required: [true, 'Please provide the password'],
         trim: true,
         select: false,
     },

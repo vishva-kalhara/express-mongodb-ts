@@ -10,6 +10,8 @@ import mongoose from 'mongoose';
 
 describe('/api/v1/auth', () => {
     let app: Express;
+    let passwordResetToken: String;
+
     const userPayLoad = {
         name: 'testName',
         email: 'test123@gmail.com',
@@ -223,6 +225,83 @@ describe('/api/v1/auth', () => {
 
             expect(response.status).toBe(200);
             expect(response.body.status).toBe('success');
+            expect(response.body.token).toBeDefined();
+            expect(response.body.token).toHaveLength(6);
+            passwordResetToken = response.body.token;
+        });
+    });
+
+    describe('[PATCH] /updateMyPassword/:token', () => {
+        const bodyPayLoad = {
+            newPassword: '',
+            confirmPassword: '',
+        };
+
+        beforeEach(() => {
+            bodyPayLoad.newPassword = '123456789';
+            bodyPayLoad.confirmPassword = '123456789';
+        });
+
+        it('Should return 400 when the newPassword is not provided', async () => {
+            bodyPayLoad.newPassword = '';
+            const response = await request(app)
+                .patch(`/api/v1/auth/updateMyPassword/${passwordResetToken}`)
+                .send(bodyPayLoad);
+
+            expect(response.status).toBe(400);
+            expect(response.body.data).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ field: 'password' }),
+                ])
+            );
+        });
+
+        it('Should return 400 when the confirmPassword is not provided', async () => {
+            bodyPayLoad.confirmPassword = '';
+            const response = await request(app)
+                .patch(`/api/v1/auth/updateMyPassword/${passwordResetToken}`)
+                .send(bodyPayLoad);
+
+            expect(response.status).toBe(400);
+            expect(response.body.data).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ field: 'confirmPassword' }),
+                ])
+            );
+        });
+
+        it('Should return 400 when the passwords are not matching', async () => {
+            bodyPayLoad.confirmPassword = '123123123';
+            const response = await request(app)
+                .patch(`/api/v1/auth/updateMyPassword/${passwordResetToken}`)
+                .send(bodyPayLoad);
+
+            expect(response.status).toBe(400);
+            expect(response.body.data).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        message:
+                            'Password and Confirm Password does not match.',
+                    }),
+                ])
+            );
+        });
+
+        it('Should return 400 when the token is wrong', async () => {
+            const response = await request(app)
+                .patch(`/api/v1/auth/updateMyPassword/wrong`)
+                .send(bodyPayLoad);
+
+            expect(response.status).toBe(400);
+            expect(response.body.status).toBe('fail');
+        });
+
+        it('Should return 200 when the reset is success', async () => {
+            const response = await request(app)
+                .patch(`/api/v1/auth/updateMyPassword/${passwordResetToken}`)
+                .send(bodyPayLoad);
+
+            expect(response.status).toBe(200);
         });
     });
 });

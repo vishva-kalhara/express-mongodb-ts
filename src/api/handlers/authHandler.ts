@@ -71,10 +71,11 @@ export const signUp = catchAsync(
             confirmPassword,
         });
 
-        // await new Email(
-        //     newUser,
-        //     'https://github.com/vishva-kalhara/express-mongodb-ts'
-        // ).sendWelcome();
+        if (process.env.NODE_ENV != 'test')
+            await new Email(
+                newUser,
+                'https://github.com/vishva-kalhara/express-mongodb-ts'
+            ).sendWelcome();
 
         createSendToken(newUser, 201, res);
     }
@@ -167,16 +168,17 @@ export const forgetPassword = catchAsync(
         const user = await User.findOne({ email: req.body.email });
         if (!user) return next(new AppError('No user found!', 404));
 
-        const token = await user.createPasswordResetToken();
+        const token = user.createPasswordResetToken();
         await user.save({
             validateBeforeSave: false,
         });
 
-        console.log(token);
-        await new Email(user, '').sendPasswordReset(token);
+        if (process.env.NODE_ENV != 'test')
+            await new Email(user, '').sendPasswordReset(token);
 
         res.status(200).json({
             status: 'success',
+            token: process.env.NODE_ENV === 'test' ? token : undefined,
             message: 'Token sent to email!',
         });
     }
@@ -184,6 +186,10 @@ export const forgetPassword = catchAsync(
 
 export const resetPassword = catchAsync(
     async (req: IRequestResetPassword, res: Response, next: NextFunction) => {
+        const { newPassword, confirmPassword } = req.body;
+
+        // if(!newPassword || !confirmPassword) return next(new AppError('newPassword and confirm '))
+
         const hashedToken = crypto
             .createHash('sha256')
             .update(req.params.token)
@@ -199,8 +205,8 @@ export const resetPassword = catchAsync(
             return next(new AppError('Token is expired or not valid!', 400));
 
         // Persist data in the database
-        user.password = req.body.newPassword;
-        user.confirmPassword = req.body.confirmPassword;
+        user.password = newPassword;
+        user.confirmPassword = confirmPassword;
         user.passwordResetToken = undefined;
         user.passwordResetExpires = undefined;
         user.passwordResetAt = new Date(Date.now());
