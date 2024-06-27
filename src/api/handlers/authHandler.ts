@@ -1,16 +1,18 @@
+import crypto from 'crypto';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import catchAsync from '../utils/catchAsync';
 import User from '../schemas/userSchema';
 import { IUserDocument, IUserInput } from '../types/userTypes';
 import {
     IRequestForgetPassword,
+    IRequestResetPassword,
     IRequestUpdateMyPassword,
     ISignInRequest,
 } from '../types/authTypes';
 import AppError from '../utils/appError';
-// import Email from '../utils/email';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import Email from '../utils/email';
 
 export const signJWT = (id: String) =>
     jwt.sign({ id }, process.env.JWT_SECRET as string, {
@@ -171,7 +173,7 @@ export const forgetPassword = catchAsync(
         });
 
         console.log(token);
-        // await new Email(user, '').sendPasswordReset(token);
+        await new Email(user, '').sendPasswordReset(token);
 
         res.status(200).json({
             status: 'success',
@@ -181,9 +183,29 @@ export const forgetPassword = catchAsync(
 );
 
 export const resetPassword = catchAsync(
-    async (
-        _req: IRequestUpdateMyPassword,
-        _res: Response,
-        _next: NextFunction
-    ) => {}
+    async (req: IRequestResetPassword, res: Response, next: NextFunction) => {
+        const hashedToken = crypto
+            .createHash('sha256')
+            .update(req.params.token)
+            .digest('hex');
+
+        const user = await User.findOne({
+            passwordResetToken: hashedToken,
+            passwordResetExpires: { $gt: Date.now() },
+        });
+
+        // Validate whether the token is expired or not
+        if (!user)
+            return next(new AppError('Token is expired or not valid!', 400));
+
+        // Persist data in the database
+        user.password = req.body.newPassword;
+        user.confirmPassword = req.body.confirmPassword;
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        user.passwordResetAt = new Date(Date.now());
+        await user.save();
+
+        createSendToken(user, 200, res);
+    }
 );

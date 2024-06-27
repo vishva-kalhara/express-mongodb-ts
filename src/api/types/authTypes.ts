@@ -23,3 +23,13 @@ export interface IRequestForgetPassword extends IRequestWithUser {
         email: string;
     };
 }
+
+export interface IRequestResetPassword extends IRequestWithUser {
+    params: {
+        token: string;
+    };
+    body: {
+        newPassword: string;
+        confirmPassword: string;
+    };
+}

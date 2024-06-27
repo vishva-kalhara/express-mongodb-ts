@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 jest.mock('jsonwebtoken');
 
-describe('Supportive functions authHandler()', () => {
+describe('Auth Handler Unit Tests', () => {
     describe('isPasswordMatch()', () => {
         const plainPassword = '123456789';
         const hashedPassword =
