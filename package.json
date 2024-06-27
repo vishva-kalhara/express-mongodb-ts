@@ -30,6 +30,7 @@
         "start:prod": "cd ./src && cd ./api && npx cross-env NODE_ENV=production nodemon index.ts",
         "test": "jest --verbose --runInBand --detectOpenHandles",
         "test:units": "jest --testPathPattern=src/__tests__/units --verbose --runInBand --detectOpenHandles",
+        "test:units:restrictTo": "jest --testPathPattern=src/__tests__/units/restrictTo.test.ts --verbose --runInBand --detectOpenHandles",
         "test:integrations": "jest --testPathPattern=src/__tests__/integrations --verbose --runInBand --detectOpenHandles",
         "test:integrations:user": "jest --testPathPattern=src/__tests__/integrations/userHandler.test.ts --verbose --runInBand --detectOpenHandles",
         "test:integrations:auth": "jest --testPathPattern=src/__tests__/integrations/authHandler.test.ts --verbose --runInBand --detectOpenHandles",
