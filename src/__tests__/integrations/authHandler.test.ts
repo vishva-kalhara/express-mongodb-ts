@@ -196,4 +196,33 @@ describe('/api/v1/auth', () => {
             expect(response.body.jwt).not.toBe('Bearer ' + currentJwt);
         });
     });
+
+    describe('[GET] /forgetPassword', () => {
+        it('Should return 400 when not providing Email', async () => {
+            const response = await request(app)
+                .get('/api/v1/auth/forgetPassword')
+                .send({});
+
+            expect(response.status).toBe(400);
+            expect(response.body.status).toBe('fail');
+        });
+
+        it('Should return 404 when there is no account', async () => {
+            const response = await request(app)
+                .get('/api/v1/auth/forgetPassword')
+                .send({ email: 'invalidEmail@example.com' });
+
+            expect(response.status).toBe(404);
+            expect(response.body.status).toBe('fail');
+        });
+
+        it('Should return 200 when it is done', async () => {
+            const response = await request(app)
+                .get('/api/v1/auth/forgetPassword')
+                .send({ email: userPayLoad.email });
+
+            expect(response.status).toBe(200);
+            expect(response.body.status).toBe('success');
+        });
+    });
 });

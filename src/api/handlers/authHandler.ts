@@ -8,7 +8,7 @@ import {
     ISignInRequest,
 } from '../types/authTypes';
 import AppError from '../utils/appError';
-import Email from '../utils/email';
+// import Email from '../utils/email';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -69,10 +69,10 @@ export const signUp = catchAsync(
             confirmPassword,
         });
 
-        await new Email(
-            newUser,
-            'https://github.com/vishva-kalhara/express-mongodb-ts'
-        ).sendWelcome();
+        // await new Email(
+        //     newUser,
+        //     'https://github.com/vishva-kalhara/express-mongodb-ts'
+        // ).sendWelcome();
 
         createSendToken(newUser, 201, res);
     }
@@ -106,11 +106,6 @@ export const signIn = catchAsync(
             return next(new AppError('Password is incorrect.', 401));
 
         user.password = '';
-
-        await new Email(
-            user,
-            'https://github.com/vishva-kalhara/express-mongodb-ts'
-        ).sendWelcome();
 
         createSendToken(user, 200, res);
     }
@@ -162,6 +157,11 @@ export const updateMyPassword = catchAsync(
 
 export const forgetPassword = catchAsync(
     async (req: IRequestForgetPassword, res: Response, next: NextFunction) => {
+        if (!req.body.email)
+            return next(
+                new AppError('Please provide email to use this endpoint', 400)
+            );
+
         const user = await User.findOne({ email: req.body.email });
         if (!user) return next(new AppError('No user found!', 404));
 
@@ -171,10 +171,10 @@ export const forgetPassword = catchAsync(
         });
 
         console.log(token);
-        await new Email(user, '').sendPasswordReset(token);
+        // await new Email(user, '').sendPasswordReset(token);
 
         res.status(200).json({
-            staus: 'success',
+            status: 'success',
             message: 'Token sent to email!',
         });
     }
