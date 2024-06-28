@@ -5,6 +5,7 @@ import APIFeatures from './apiFeatures';
 import userSchema from '../schemas/userSchema';
 import AppError from './appError';
 import { filterObj } from './filterObj';
+import { IRequestWithUser } from '../types/authTypes';
 
 export const getAll = <T extends Document>(Model: Model<T>) =>
     catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
@@ -45,9 +46,18 @@ export const getOne = <T extends Document>(
         });
     });
 
-export const createOne = <T extends Document>(Model: Model<T>) =>
+export const createOne = <T extends Document>(
+    Model: Model<T>,
+    options?: {
+        type: 'include' | 'exclude';
+        fields: string[];
+    }
+) =>
     catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
-        const doc = await Model.create(req.body);
+        let filteredBody = req.body;
+        if (options) filteredBody = filterObj(req.body, options);
+
+        const doc = await Model.create(filteredBody);
 
         res.status(201).json({
             status: 'success',
@@ -60,32 +70,44 @@ export const createOne = <T extends Document>(Model: Model<T>) =>
 export const updateOne = <T extends Document>(
     Model: Model<T>,
     options?: {
+        docIdFrom?: 'jwt' | 'params';
         type: 'include' | 'exclude';
         fields: string[];
     }
-    // allowedFields: string[] = ['']
 ) =>
-    catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        let filteredBody = req.body;
-        // if(allowedFields) filteredBody =
-        if (options) filteredBody = filterObj(req.body, options);
+    catchAsync(
+        async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+            let filteredBody = req.body;
+            // if(allowedFields) filteredBody =
+            if (options) filteredBody = filterObj(req.body, options);
 
-        const doc = await Model.findByIdAndUpdate(req.params.id, filteredBody, {
-            new: true,
-            runValidators: true,
-        });
+            let documentId: string;
+            if (options?.docIdFrom === 'jwt') documentId = req.user.id;
+            else documentId = req.params.id;
 
-        if (!doc) {
-            return next(new AppError('No document found with that ID', 404));
+            const doc = await Model.findByIdAndUpdate(
+                documentId,
+                filteredBody,
+                {
+                    new: true,
+                    runValidators: true,
+                }
+            );
+
+            if (!doc) {
+                return next(
+                    new AppError('No document found with that ID', 404)
+                );
+            }
+
+            return res.status(200).json({
+                status: 'success',
+                data: {
+                    doc,
+                },
+            });
         }
-
-        return res.status(200).json({
-            status: 'success',
-            data: {
-                doc,
-            },
-        });
-    });
+    );
 
 export const deleteOne = <T extends Document>(Model: Model<T>) =>
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {

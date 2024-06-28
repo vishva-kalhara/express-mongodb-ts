@@ -11,21 +11,22 @@ describe('/api/v1/users', () => {
     let app: Express;
     const userPayLoad = {
         name: 'testName',
-        email: 'test123@gmail.com',
+        email: 'test@example.com',
         password: '123456789',
         confirmPassword: '123456789',
         role: 'Admin',
     };
+
     let currentJwt = 'Bearer ';
 
     beforeAll(async () => {
         await connectDB();
         app = createApp();
 
-        // Insert Test user
+        // Create Test user
         await request(app).post('/api/v1/auth/signUp').send(userPayLoad);
 
-        // Sign in using that user
+        // Sign in using Admin
         const response2 = await request(app).post('/api/v1/auth/signIn').send({
             email: userPayLoad.email,
             password: userPayLoad.password,
@@ -55,10 +56,8 @@ describe('/api/v1/users', () => {
             const response = await exec();
 
             expect(response.status).toBe(200);
-            expect(response.body.data.updatedUser.name).toBe('updated Name');
-            expect(
-                response.body.data.updatedUser.notIncludedField
-            ).toBeUndefined();
+            expect(response.body.data.doc.name).toBe('updated Name');
+            expect(response.body.data.doc.notIncludedField).toBeUndefined();
         });
 
         it('Should return 401 when the user is not logged in', async () => {
