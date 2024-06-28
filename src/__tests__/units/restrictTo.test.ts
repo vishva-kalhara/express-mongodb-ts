@@ -12,7 +12,7 @@ describe('restrictTo() middleware', () => {
         const res = {} as Response;
         const next = jest.fn();
 
-        restrictTo('Admin', 'User')(req, res, next);
+        restrictTo(['Admin', 'User'], req as IRequestWithUser, res, next);
 
         expect(next).toHaveBeenCalled();
         expect(next).not.toHaveBeenCalledWith(expect.any(AppError));
@@ -26,7 +26,7 @@ describe('restrictTo() middleware', () => {
         const res = {} as Response;
         const next = jest.fn();
 
-        restrictTo('Admin')(req, res, next);
+        restrictTo(['Admin'], req as IRequestWithUser, res, next);
 
         const error = next.mock.calls[0][0];
         expect(error.statusCode).toBe(403);
