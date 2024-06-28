@@ -2,7 +2,8 @@ import { NextFunction, Response } from 'express';
 import { IRequestWithUser } from '../types/authTypes';
 import AppError from '../utils/appError';
 
-export default (...roles: string[]) =>
+const restrictTo =
+    (...roles: string[]) =>
     (req: IRequestWithUser, _res: Response, next: NextFunction) => {
         if (!roles.includes(req.user.role)) {
             return next(
@@ -14,3 +15,5 @@ export default (...roles: string[]) =>
         }
         next();
     };
+
+export default restrictTo;

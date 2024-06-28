@@ -1,37 +1,30 @@
 import { NextFunction, Request, Response } from 'express';
-import { IGetAllUsersResponse, IGetUserResponse } from '../types/userTypes';
 import catchAsync from '../utils/catchAsync';
-import { dummyUsers } from '../../__data__/dummy-users';
 import { filterObj } from '../utils/filterObj';
 import userSchema from '../schemas/userSchema';
 import { IRequestWithUser } from '../types/authTypes';
+import {
+    deleteOne,
+    getAll,
+    getOne,
+    updateOne,
+} from '../utils/factoryFunctions';
 
-export const getAllUsers = catchAsync(
-    async (
-        _req: Request,
-        res: Response<IGetAllUsersResponse>,
-        _next: NextFunction
-    ) => {
-        res.status(200).json({
-            status: 'success',
-            count: dummyUsers.length,
-            data: dummyUsers,
-        });
-    }
-);
+export const getAllUsers = getAll(userSchema);
 
-export const getUser = catchAsync(
-    async (
-        _req: Request<{ id: number }>,
-        res: Response<IGetUserResponse>,
-        _next: NextFunction
-    ) => {
-        res.status(200).json({
-            status: 'success',
-            data: dummyUsers[0],
-        });
-    }
-);
+export const getUser = getOne(userSchema);
+
+// export const createUser = createOne(userSchema);
+export const createUser = (_req: Request, res: Response) => {
+    res.status(401).json({
+        status: 'Unauthorized',
+        message: 'Use /sign-up route',
+    });
+};
+
+export const updateUser = updateOne(userSchema);
+
+export const deleteUser = deleteOne(userSchema);
 
 export const updateMe = catchAsync(
     async (req: IRequestWithUser, res: Response, _next: NextFunction) => {

@@ -3,6 +3,7 @@ import AppError from '../utils/appError';
 import { duplicateDocumentError, errorType } from '../types/errorTypes';
 import {
     handleDuplicateDocuments,
+    handleInvalidObjectIDs,
     handleValidationErrors,
     sendErrorDev,
     sendErrorProd,
@@ -17,6 +18,7 @@ export default (
     let error = err;
     error.statusCode = err.statusCode || 500;
     error.status = err.status || 'error';
+
     if (
         (process.env.NODE_ENV as string) === 'production' ||
         (process.env.NODE_ENV as string) === 'test'
@@ -25,8 +27,12 @@ export default (
             error = handleValidationErrors(error as errorType);
         if (error.code === 11000)
             error = handleDuplicateDocuments(error as duplicateDocumentError);
-
-        // console.log(error);
+        if (
+            error.statusCode === 500 &&
+            error.name === 'CastError' &&
+            error.kind === 'ObjectId'
+        )
+            error = handleInvalidObjectIDs();
         return sendErrorProd(error, res);
     }
     return sendErrorDev(error, res);

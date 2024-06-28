@@ -25,6 +25,10 @@ export const handleValidationErrors = (err: errorType) => {
     return new AppError(errors, 400);
 };
 
+export const handleInvalidObjectIDs = () => {
+    return new AppError('No document found with that ID', 404);
+};
+
 export const sendErrorDev = (err: AppError, res: Response) => {
     res.status(err.statusCode).json({
         status: err.status,
