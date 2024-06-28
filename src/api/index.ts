@@ -3,8 +3,12 @@ const envFilePath = (() => {
     switch (process.env.NODE_ENV) {
         case 'production':
             return '../configs/.env.prod';
-        default:
+        case 'development':
             return '../configs/.env.dev';
+        case 'test':
+            return '../configs/.env.test';
+        default:
+            return '../configs/.env';
     }
 })();
 

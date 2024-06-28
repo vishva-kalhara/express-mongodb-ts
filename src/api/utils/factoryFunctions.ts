@@ -4,6 +4,7 @@ import catchAsync from './catchAsync';
 import APIFeatures from './apiFeatures';
 import userSchema from '../schemas/userSchema';
 import AppError from './appError';
+import { filterObj } from './filterObj';
 
 export const getAll = <T extends Document>(Model: Model<T>) =>
     catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
@@ -56,9 +57,20 @@ export const createOne = <T extends Document>(Model: Model<T>) =>
         });
     });
 
-export const updateOne = <T extends Document>(Model: Model<T>) =>
+export const updateOne = <T extends Document>(
+    Model: Model<T>,
+    options?: {
+        type: 'include' | 'exclude';
+        fields: string[];
+    }
+    // allowedFields: string[] = ['']
+) =>
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+        let filteredBody = req.body;
+        // if(allowedFields) filteredBody =
+        if (options) filteredBody = filterObj(req.body, options);
+
+        const doc = await Model.findByIdAndUpdate(req.params.id, filteredBody, {
             new: true,
             runValidators: true,
         });
@@ -67,7 +79,7 @@ export const updateOne = <T extends Document>(Model: Model<T>) =>
             return next(new AppError('No document found with that ID', 404));
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             status: 'success',
             data: {
                 doc,

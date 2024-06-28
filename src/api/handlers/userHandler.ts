@@ -22,13 +22,19 @@ export const createUser = (_req: Request, res: Response) => {
     });
 };
 
-export const updateUser = updateOne(userSchema);
+export const updateUser = updateOne(userSchema, {
+    type: 'include',
+    fields: ['name', 'email', 'isActive'],
+});
 
 export const deleteUser = deleteOne(userSchema);
 
 export const updateMe = catchAsync(
     async (req: IRequestWithUser, res: Response, _next: NextFunction) => {
-        const filteredBody = filterObj(req.body, 'name');
+        const filteredBody = filterObj(req.body, {
+            type: 'include',
+            fields: ['name'],
+        });
         const updatedUser = await userSchema.findByIdAndUpdate(
             req.user!._id,
             filteredBody,

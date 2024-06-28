@@ -6,6 +6,7 @@ export interface IUserInput {
     password: string;
     confirmPassword: string | undefined;
     role: 'Admin' | 'User';
+    // role: string; //'Admin' | 'User'
     isActive: boolean;
 }
 

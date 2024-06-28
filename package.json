@@ -28,7 +28,7 @@
     "scripts": {
         "start": "cd ./src && cd ./api && npx cross-env NODE_ENV=development nodemon index.ts",
         "start:prod": "cd ./src && cd ./api && npx cross-env NODE_ENV=production nodemon index.ts",
-        "debug": "cd ./src && cd ./api ndb index.ts",
+        "debug": "cd ./src && cd ./api && ndb index.ts",
         "test": "jest --verbose --runInBand --detectOpenHandles",
         "test:units": "jest --testPathPattern=src/__tests__/units --verbose --runInBand --detectOpenHandles",
         "test:units:restrictTo": "jest --testPathPattern=src/__tests__/units/restrictTo.test.ts --verbose --runInBand --detectOpenHandles",
@@ -75,6 +75,7 @@
         "supertest": "^7.0.0",
         "ts-jest": "^29.1.3",
         "ts-node": "^10.9.2",
+        "tsconfig-paths": "3.9.0",
         "tsx": "^4.10.5",
         "types": "^0.1.1",
         "typescript": "^5.4.5"
