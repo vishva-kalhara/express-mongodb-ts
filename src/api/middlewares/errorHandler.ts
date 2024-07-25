@@ -4,6 +4,7 @@ import { duplicateDocumentError, errorType } from '../types/errorTypes';
 import {
     handleDuplicateDocuments,
     handleInvalidObjectIDs,
+    handleJWTMalformed,
     handleValidationErrors,
     sendErrorDev,
     sendErrorProd,
@@ -33,6 +34,13 @@ export default (
             error.kind === 'ObjectId'
         )
             error = handleInvalidObjectIDs();
+
+        if (
+            error?.name === 'JsonWebTokenError' ||
+            error?.name == 'TokenExpiredError'
+        ) {
+            error = handleJWTMalformed();
+        }
         return sendErrorProd(error, res);
     }
     return sendErrorDev(error, res);

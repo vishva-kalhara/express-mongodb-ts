@@ -26,8 +26,8 @@
         "src/api/types/express.d.ts"
     ],
     "scripts": {
-        "start": "cd ./src && cd ./api && npx cross-env NODE_ENV=development nodemon index.ts",
-        "start:prod": "cd ./src && cd ./api && npx cross-env NODE_ENV=production nodemon index.ts",
+        "start": "cd ./src && cd ./api && npx cross-env NODE_ENV=production nodemon index.ts",
+        "start:dev": "cd ./src && cd ./api && npx cross-env NODE_ENV=development nodemon index.ts",
         "debug": "cd ./src && cd ./api && ndb index.ts",
         "test": "jest --verbose --runInBand --detectOpenHandles",
         "test:units": "jest --testPathPattern=src/__tests__/units --verbose --runInBand --detectOpenHandles",

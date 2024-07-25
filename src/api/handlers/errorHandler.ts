@@ -29,6 +29,10 @@ export const handleInvalidObjectIDs = () => {
     return new AppError('No document found with that ID', 404);
 };
 
+export const handleJWTMalformed = () => {
+    return new AppError('Please sign in to the application!', 401);
+};
+
 export const sendErrorDev = (err: AppError, res: Response) => {
     res.status(err.statusCode).json({
         status: err.status,

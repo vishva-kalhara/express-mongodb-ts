@@ -31,6 +31,12 @@ export function createApp() {
 
     app.use(express.json({ limit: '10kb' }));
 
+    app.get('/', (_req, res, _next) => {
+        res.json({
+            status: 'success',
+            message: 'Up and Running...',
+        });
+    });
     app.use('/api/v1/auth', authRouter);
     app.use('/api/v1/users', userRouter);
 
