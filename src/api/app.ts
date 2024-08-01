@@ -7,6 +7,7 @@ import userRouter from './routes/userRoutes';
 import errorHandler from './middlewares/errorHandler';
 import authRouter from './routes/authRoutes';
 import cors from 'cors';
+import AppError from './utils/appError';
 
 export function createApp() {
     const app = express();
@@ -39,6 +40,10 @@ export function createApp() {
     });
     app.use('/api/v1/auth', authRouter);
     app.use('/api/v1/users', userRouter);
+
+    app.all('*', (req, _res, next) => {
+        next(new AppError(`Can't find ${req.originalUrl} on the server!`, 404));
+    });
 
     app.use(errorHandler);
 
